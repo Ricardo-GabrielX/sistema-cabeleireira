@@ -8,7 +8,7 @@ import styles from './Cadastro.module.css'
 export default function Cadastro() {
   const { entrar } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ nome: '', email: '', senha: '', telefone: '', role: 'CLIENTE' })
+  const [form, setForm] = useState({ nome: '', email: '', senha: '', telefone: '' })
   const [erro, setErro] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -17,7 +17,7 @@ export default function Cadastro() {
     setErro('')
     setLoading(true)
     try {
-      const { data } = await cadastro(form)
+      const { data } = await cadastro({...form, role: 'CLIENTE'})
       entrar(data)
       navigate(data.role === 'CABELEIREIRA' ? '/dashboard' : '/agendar')
     } catch (err) {
@@ -52,13 +52,6 @@ export default function Cadastro() {
           <div className={styles.field}>
             <label className={styles.label}>Senha</label>
             <input className={styles.input} type="password" value={form.senha} onChange={set('senha')} required />
-          </div>
-          <div className={styles.field}>
-            <label className={styles.label}>Tipo de conta</label>
-            <select className={styles.input} value={form.role} onChange={set('role')}>
-              <option value="CLIENTE">Cliente</option>
-              <option value="CABELEIREIRA">Cabeleireira</option>
-            </select>
           </div>
           {erro && <p className={styles.erro}>{erro}</p>}
           <Button type="submit" full disabled={loading}>
