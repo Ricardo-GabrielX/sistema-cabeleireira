@@ -13,6 +13,7 @@ public class AgendamentoDTO {
         private LocalDateTime dataHora;
         private List<UUID> servicoIds;
         private String observacao;
+        private Boolean confirmarMesmoAssim;
     }
 
     @Data

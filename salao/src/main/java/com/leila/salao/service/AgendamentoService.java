@@ -24,15 +24,44 @@ public class AgendamentoService {
     // --- CLIENTE ---
 
     public AgendamentoDTO.Response criar(AgendamentoDTO.Request req, UUID clienteId) {
+
         Usuario cliente = usuarioRepository.findById(clienteId)
             .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+
         if (!horarioEstaDisponivel(req.getDataHora())) {
-            throw new RuntimeException("Este horário já está ocupado. Por favor, escolha outro horário.");
+            throw new RuntimeException(
+                "Este horário já está ocupado. Por favor, escolha outro horário."
+            );
         }
 
-        List<Servico> servicos = servicoRepository.findAllById(req.getServicoIds());
-        if (servicos.isEmpty()) throw new RuntimeException("Nenhum serviço válido informado");
+        List<Servico> servicos =
+            servicoRepository.findAllById(req.getServicoIds());
 
+        if (servicos.isEmpty()) {
+            throw new RuntimeException(
+                "Nenhum serviço válido informado"
+            );
+        }
+
+        // VERIFICA SE JÁ EXISTE AGENDAMENTO NA MESMA SEMANA
+        String sugestao = verificarMesmaSemana(
+            clienteId,
+            req.getDataHora(),
+            null
+        );
+
+        // SE EXISTE SUGESTÃO E CLIENTE NÃO CONFIRMOU
+        if (
+            sugestao != null &&
+            !Boolean.TRUE.equals(req.getConfirmarMesmoAssim())
+        ) {
+
+            return AgendamentoDTO.Response.builder()
+                .sugestao(sugestao)
+                .build();
+        }
+
+        // AGORA SIM CRIA O AGENDAMENTO
         Agendamento agendamento = Agendamento.builder()
             .cliente(cliente)
             .dataHora(req.getDataHora())
@@ -42,8 +71,7 @@ public class AgendamentoService {
 
         agendamentoRepository.save(agendamento);
 
-        String sugestao = verificarMesmaSemana(clienteId, req.getDataHora(), agendamento.getId());
-        return toResponse(agendamento, sugestao);
+        return toResponse(agendamento, null);
     }
 
     private boolean horarioEstaDisponivel(LocalDateTime dataHora) {

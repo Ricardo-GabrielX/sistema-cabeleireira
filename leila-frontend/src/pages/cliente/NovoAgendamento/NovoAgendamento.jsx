@@ -64,6 +64,36 @@ export default function NovoAgendamento() {
     )
   }
 
+  async function confirmarMesmoAssim() {
+
+  try {
+
+    setLoading(true)
+
+    const dataHoraCompleta =
+      `${dataSelecionada}T${horarioSelecionado}:00`
+
+    await criarAgendamento({
+      dataHora: dataHoraCompleta,
+      servicoIds: selecionados,
+      observacao,
+      confirmarMesmoAssim: true,
+    })
+
+    navigate('/meus-agendamentos')
+
+  } catch (err) {
+
+    setErro(
+      err.response?.data?.message ||
+      'Erro ao criar agendamento'
+    )
+
+  } finally {
+    setLoading(false)
+  }
+}
+
   async function handleSubmit(e) {
     e.preventDefault()
     
@@ -117,8 +147,11 @@ export default function NovoAgendamento() {
               }}>
                 Escolher outra data
               </Button>
-              <Button variant="outline" onClick={() => navigate('/meus-agendamentos')}>
-                Ver meus agendamentos
+              <Button
+                variant="outline"
+                onClick={confirmarMesmoAssim}
+              >
+                Continuar mesmo assim
               </Button>
             </div>
           </div>
