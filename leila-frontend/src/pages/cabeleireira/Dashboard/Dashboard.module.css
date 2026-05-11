@@ -62,3 +62,91 @@
 @media (max-width: 768px) {
   .cards { grid-template-columns: repeat(2, 1fr); }
 }
+
+
+.agendamentosLista {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.agendamentosTitle {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agendamentoItem {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  transition: all 0.15s;
+}
+
+.agendamentoItem:hover {
+  border-color: var(--pink);
+  background: var(--pink-light);
+}
+
+.agendamentoItem:last-child {
+  margin-bottom: 0;
+}
+
+.agendamentoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.clienteInfo {
+  flex: 1;
+}
+
+.clienteNome {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--gray-900);
+  margin-bottom: 2px;
+}
+
+.clienteTel {
+  font-size: 12px;
+  color: var(--gray-500);
+}
+
+.agendamentoDataHora {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--gray-600);
+  margin-bottom: 6px;
+}
+
+.agendamentoServicos {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.servicoTag {
+  background: var(--gray-100);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--gray-700);
+}
+
+.vazioAgendamentos {
+  text-align: center;
+  padding: 24px;
+  color: var(--gray-400);
+  font-size: 13px;
+}

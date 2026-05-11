@@ -111,50 +111,49 @@ public class AgendamentoService {
 
     // --- DASHBOARD ---
 
-    public DashboardDTO.SemanaResponse dashboardSemana() {
-        LocalDate hoje = LocalDate.now();
+    public Map<String, Object> dashboardSemana() {
+       LocalDate hoje = LocalDate.now();
         LocalDate inicioSemana = hoje.with(DayOfWeek.MONDAY);
         LocalDate fimSemana = hoje.with(DayOfWeek.SUNDAY);
 
-        List<Agendamento> agendamentos = agendamentoRepository
-            .findByDataHoraBetweenOrderByDataHoraAsc(
-                inicioSemana.atStartOfDay(), fimSemana.atTime(23, 59));
+        List<Agendamento> semanaAtual = agendamentoRepository.findByDataHoraBetweenOrderByDataHoraAsc(
+            inicioSemana.atStartOfDay(), fimSemana.atTime(23, 59));
 
-        // Agrupamento por dia para o gráfico
-        Map<String, Long> porDia = new LinkedHashMap<>();
-        for (DayOfWeek dia : DayOfWeek.values()) {
-            String nomeDia = dia.getDisplayName(TextStyle.SHORT, new Locale("pt", "BR"));
-            long count = agendamentos.stream()
-                .filter(a -> a.getDataHora().getDayOfWeek() == dia)
-                .count();
-            porDia.put(nomeDia, count);
-        }
+        // Clientes com 2+ agendamentos na semana (sugestão de consolidação)
+        Map<String, List<Agendamento>> porCliente = semanaAtual.stream()
+            .collect(Collectors.groupingBy(a -> a.getCliente().getEmail()));
 
-        // Sugestões de consolidação (mesmo cliente, 2+ agendamentos na semana)
-        Map<UUID, List<Agendamento>> porCliente = agendamentos.stream()
-            .collect(Collectors.groupingBy(a -> a.getCliente().getId()));
-
-        List<DashboardDTO.SugestaoConsolidacao> sugestoes = porCliente.values().stream()
-            .filter(lista -> lista.size() > 1)
-            .map(lista -> {
-                lista.sort(Comparator.comparing(Agendamento::getDataHora));
-                return DashboardDTO.SugestaoConsolidacao.builder()
-                    .clienteNome(lista.get(0).getCliente().getNome())
-                    .clienteTelefone(lista.get(0).getCliente().getTelefone())
-                    .sugestaoData(lista.get(0).getDataHora()
-                        .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
-                    .agendamentos(lista.stream().map(a -> toResponse(a, null)).toList())
-                    .build();
+        List<Map<String, Object>> sugestoes = porCliente.entrySet().stream()
+            .filter(e -> e.getValue().size() > 1)
+            .map(e -> {
+                Map<String, Object> s = new HashMap<>();
+                s.put("clienteNome", e.getValue().get(0).getCliente().getNome());
+                s.put("clienteTelefone", e.getValue().get(0).getCliente().getTelefone());
+                s.put("agendamentos", e.getValue().stream().map(a -> toResponse(a, null)).toList());
+                s.put("sugestaoData", e.getValue().get(0).getDataHora()
+                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+                return s;
             }).toList();
 
-        return DashboardDTO.SemanaResponse.builder()
-            .totalSemana(agendamentos.size())
-            .confirmados(agendamentos.stream().filter(a -> a.getStatus() == AgendamentoStatus.CONFIRMADO).count())
-            .pendentes(agendamentos.stream().filter(a -> a.getStatus() == AgendamentoStatus.PENDENTE).count())
-            .cancelados(agendamentos.stream().filter(a -> a.getStatus() == AgendamentoStatus.CANCELADO).count())
-            .agendamentosPorDia(porDia)
-            .sugestoes(sugestoes)
-            .build();
+        // Incluindo para lostar tudo, tava listando apenas agendamentos +2;
+        List<AgendamentoDTO.Response> todosAgendamentos = semanaAtual.stream()
+            .map(a -> toResponse(a, null))
+            .toList();
+
+        Map<String, Long> porDia = semanaAtual.stream()
+            .collect(Collectors.groupingBy(
+                a -> a.getDataHora().getDayOfWeek().getDisplayName(TextStyle.SHORT, new Locale("pt", "BR")),
+                Collectors.counting()));
+
+        Map<String, Object> resultado = new HashMap<>();
+        resultado.put("totalSemana", semanaAtual.size());
+        resultado.put("confirmados", semanaAtual.stream().filter(a -> a.getStatus() == AgendamentoStatus.CONFIRMADO).count());
+        resultado.put("pendentes", semanaAtual.stream().filter(a -> a.getStatus() == AgendamentoStatus.PENDENTE).count());
+        resultado.put("cancelados", semanaAtual.stream().filter(a -> a.getStatus() == AgendamentoStatus.CANCELADO).count());
+        resultado.put("agendamentosPorDia", porDia);
+        resultado.put("sugestoes", sugestoes);
+        resultado.put("agendamentos", todosAgendamentos);
+        return resultado;
     }
 
     // --- REGRAS DE NEGÓCIO ---
