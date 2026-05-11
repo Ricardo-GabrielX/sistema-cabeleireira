@@ -6,10 +6,10 @@ import com.leila.salao.model.UsuarioRole;
 import com.leila.salao.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 
-import javax.management.RuntimeErrorException;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 
 @Service
 @RequiredArgsConstructor
@@ -71,4 +71,30 @@ public class AuthService {
             ? jwtService.gerarTokenCabeleireira(usuario.getId())
             : jwtService.gerarTokenCliente(usuario.getId());
     }
+
+    public AuthDTO.LoginResponse criarCabeleireira(AuthDTO.CadastroRequest req) {
+    if (usuarioRepository.existsByEmail(req.getEmail())) {
+        throw new RuntimeException("Email já cadastrado");
+    }
+
+    Usuario usuario = Usuario.builder()
+        .nome(req.getNome())
+        .email(req.getEmail())
+        .senhaHash(passwordEncoder.encode(req.getSenha()))
+        .telefone(req.getTelefone())
+        .role(UsuarioRole.CABELEIREIRA)
+        .build();
+
+    usuario = usuarioRepository.save(usuario);
+
+    String token = jwtService.gerarTokenCabeleireira(usuario.getId());
+
+    return AuthDTO.LoginResponse.builder()
+        .token(token)
+        .nome(usuario.getNome())
+        .usuarioId(usuario.getId())
+        .role(usuario.getRole().name())
+        .build();
+}
+    
 }
