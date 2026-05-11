@@ -5,6 +5,9 @@ import com.leila.salao.model.Usuario;
 import com.leila.salao.model.UsuarioRole;
 import com.leila.salao.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+
+import javax.management.RuntimeErrorException;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,10 @@ public class AuthService {
     public AuthDTO.LoginResponse cadastrar(AuthDTO.CadastroRequest req) {
         if (usuarioRepository.existsByEmail(req.getEmail())) {
             throw new RuntimeException("Email já cadastrado");
+        }
+
+        if(req.getRole() != null && req.getRole() == UsuarioRole.CABELEIREIRA) {
+            throw new RuntimeException("Erro: Não é permitido cadastrar usuários do tipo CABELEIREIRA");
         }
 
         Usuario usuario = Usuario.builder()
