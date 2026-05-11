@@ -1,0 +1,11 @@
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.PENDENTE   { background: var(--yellow-light); color: var(--yellow); }
+.CONFIRMADO { background: var(--green-light);  color: var(--green);  }
+.CANCELADO  { background: var(--red-light);    color: var(--red);    }

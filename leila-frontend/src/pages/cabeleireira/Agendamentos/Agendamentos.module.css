@@ -1,0 +1,60 @@
+.title { font-size: 22px; font-weight: 600; margin-bottom: 24px; }
+
+.filtros {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.field { display: flex; flex-direction: column; gap: 4px; }
+.label { font-size: 13px; font-weight: 500; color: var(--gray-700); }
+
+.input {
+  padding: 8px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  outline: none;
+}
+.input:focus { border-color: var(--pink); }
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.clienteNome { font-weight: 600; font-size: 15px; }
+.clienteTel  { font-size: 13px; color: var(--gray-500); }
+.data        { font-size: 13px; color: var(--gray-500); margin-bottom: 8px; }
+
+.servicos { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+
+.tag {
+  background: var(--gray-100);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.obs  { font-size: 13px; color: var(--gray-400); font-style: italic; margin-bottom: 10px; }
+
+.acoes { display: flex; gap: 8px; }
+
+.vazio { text-align: center; padding: 40px; color: var(--gray-400); }
