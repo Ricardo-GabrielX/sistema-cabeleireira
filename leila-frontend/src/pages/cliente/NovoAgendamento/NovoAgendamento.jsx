@@ -102,29 +102,30 @@ export default function NovoAgendamento() {
   }
 
   if (sugestao) {
-  return (
-    <Layout>
-      <div className={styles.page}>
-        <div className={styles.sugestaoCard}>
-          <p className={styles.sugestaoTitle}>⚠️ Você já tem outro agendamento nesta semana</p>
-          <p className={styles.sugestaoTexto}>{sugestao}</p>
-          
-          <div className={styles.sugestaoAcoes}>
-            <Button onClick={() => {
-              setSugestao('')
-              setDataSelecionada('')
-              setHorarioSelecionado('')
-            }}>
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/meus-agendamentos')}>
-              Manter e ver meus agendamentos
-            </Button>
+    return (
+      <Layout>
+        <div className={styles.page}>
+          <div className={styles.sugestaoCard}>
+            <p className={styles.sugestaoTitle}>⚠️ Você já tem outro agendamento nesta semana</p>
+            <p className={styles.sugestaoTexto}>{sugestao}</p>
+            
+            <div className={styles.sugestaoAcoes}>
+              <Button onClick={() => {
+                setSugestao('')
+                setDataSelecionada('')
+                setHorarioSelecionado('')
+              }}>
+                Escolher outra data
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/meus-agendamentos')}>
+                Ver meus agendamentos
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </Layout>
-  )
-}
+      </Layout>
+    )
+  }
 
 const dataHoraResumo = dataSelecionada && horarioSelecionado
   ? `${format(new Date(dataSelecionada + 'T00:00:00'), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })} às ${horarioSelecionado}`
