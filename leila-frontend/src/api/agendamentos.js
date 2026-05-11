@@ -13,3 +13,6 @@ export const alterarStatus = (id, status) =>
   api.patch(`/api/agendamentos/${id}/status`, { status })
 
 export const dashboardSemana = () => api.get('/api/dashboard/semana')
+
+export const horariosDisponiveis = (data) => 
+  api.get('/api/agendamentos/horarios-disponiveis', { params: { data } })
