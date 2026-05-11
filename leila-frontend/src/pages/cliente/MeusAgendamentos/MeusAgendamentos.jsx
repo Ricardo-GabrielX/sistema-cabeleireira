@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import Layout from '@/components/Layout/Layout'
 import StatusBadge from '@/components/StatusBadge/StatusBadge'
 import Button from '@/components/Button/Button'
-import { meusAgendamentos, atualizarAgendamentoCliente } from '@/api/agendamentos'
+import { meusAgendamentos, atualizarAgendamentoCliente, horariosDisponiveis } from '@/api/agendamentos'
 import { listarServicos } from '@/api/servicos'
 import { CalendarDays, Clock, Scissors, Pencil, Phone, AlertCircle } from 'lucide-react'
 import { format, parseISO, isBefore, addDays } from 'date-fns'
@@ -14,10 +14,14 @@ export default function MeusAgendamentos() {
   const [todosServicos, setTodosServicos] = useState([])
   const [loading, setLoading] = useState(true)
   
-  // Modal de edição
   const [modalAberto, setModalAberto] = useState(false)
   const [editando, setEditando] = useState(null)
-  const [form, setForm] = useState({ dataHora: '', servicoIds: [], observacao: '' })
+  const [dataSelecionada, setDataSelecionada] = useState('')
+  const [horarios, setHorarios] = useState([])
+  const [horarioSelecionado, setHorarioSelecionado] = useState('')
+  const [carregandoHorarios, setCarregandoHorarios] = useState(false)
+  const [servicosSelecionados, setServicosSelecionados] = useState([])
+  const [observacao, setObservacao] = useState('')
   const [erro, setErro] = useState('')
   const [salvando, setSalvando] = useState(false)
 
@@ -47,41 +51,81 @@ export default function MeusAgendamentos() {
     carregarServicos()
   }, [])
 
+  useEffect(() => {
+    if (!dataSelecionada || !modalAberto) {
+      setHorarios([])
+      return
+    }
+
+    setCarregandoHorarios(true)
+    
+    horariosDisponiveis(dataSelecionada)
+      .then(r => {
+        const parsed = r.data.map(h => {
+          const [horario, status] = h.split(':')
+          const hora = horario
+          const minuto = status.includes('OCUPADO') ? status.split(':')[0] : status
+          return {
+            hora: `${hora}:${minuto.padStart(2, '0')}`,
+            disponivel: h.includes('DISPONIVEL')
+          }
+        })
+        
+        const horarioAtual = editando?.dataHora.slice(11, 16)
+        const horariosAjustados = parsed.map(h => {
+          if (h.hora === horarioAtual) {
+            return { ...h, disponivel: true }
+          }
+          return h
+        })
+        
+        setHorarios(horariosAjustados)
+      })
+      .catch(err => {
+        console.error('Erro ao buscar horários:', err)
+        setErro('Erro ao carregar horários disponíveis')
+      })
+      .finally(() => setCarregandoHorarios(false))
+  }, [dataSelecionada, modalAberto, editando])
+
   function podeEditar(dataHora, status) {
     if (status === 'CANCELADO') return false
     
     const dataAgendamento = parseISO(dataHora)
     const limiteDoisDias = addDays(new Date(), 2)
     
-    // Retorna true se a data do agendamento é DEPOIS do limite (mais de 2 dias)
     return dataAgendamento > limiteDoisDias
   }
 
   function abrirModal(agendamento) {
     setEditando(agendamento)
-    setForm({
-      dataHora: agendamento.dataHora.slice(0, 16), // formato datetime-local
-      servicoIds: agendamento.servicos.map(s => s.id),
-      observacao: agendamento.observacao || '',
-    })
+    
+    const dataHoraObj = parseISO(agendamento.dataHora)
+    setDataSelecionada(format(dataHoraObj, 'yyyy-MM-dd'))
+    setHorarioSelecionado(format(dataHoraObj, 'HH:mm'))
+    
+    setServicosSelecionados(agendamento.servicos.map(s => s.id))
+    setObservacao(agendamento.observacao || '')
     setErro('')
     setModalAberto(true)
   }
 
   function toggleServico(id) {
-    setForm(prev => ({
-      ...prev,
-      servicoIds: prev.servicoIds.includes(id)
-        ? prev.servicoIds.filter(s => s !== id)
-        : [...prev.servicoIds, id]
-    }))
+    setServicosSelecionados(prev =>
+      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    )
   }
 
   async function handleSalvar(e) {
     e.preventDefault()
     
-    if (form.servicoIds.length === 0) {
+    if (servicosSelecionados.length === 0) {
       setErro('Selecione ao menos um serviço')
+      return
+    }
+
+    if (!dataSelecionada || !horarioSelecionado) {
+      setErro('Selecione uma data e um horário')
       return
     }
 
@@ -89,15 +133,16 @@ export default function MeusAgendamentos() {
     setSalvando(true)
 
     try {
+      const dataHoraCompleta = `${dataSelecionada}T${horarioSelecionado}:00`
+
       const payload = {
-        dataHora: new Date(form.dataHora).toISOString().slice(0, 19),
-        servicoIds: form.servicoIds,
-        observacao: form.observacao,
+        dataHora: dataHoraCompleta,
+        servicoIds: servicosSelecionados,
+        observacao,
       }
 
       await atualizarAgendamentoCliente(editando.id, payload)
       
-      // Atualiza a lista
       await carregarAgendamentos()
       setModalAberto(false)
     } catch (err) {
@@ -158,7 +203,6 @@ export default function MeusAgendamentos() {
               
               {a.observacao && <p className={styles.obs}>"{a.observacao}"</p>}
 
-              {/* Aviso se não puder editar */}
               {!permiteEdicao && a.status !== 'CANCELADO' && (
                 <div className={styles.avisoTelefone}>
                   <Phone size={14} />
@@ -172,7 +216,6 @@ export default function MeusAgendamentos() {
         })}
       </div>
 
-      {/* Modal de edição */}
       {modalAberto && (
         <div className={styles.overlay} onClick={() => setModalAberto(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
@@ -187,27 +230,73 @@ export default function MeusAgendamentos() {
 
             <form className={styles.form} onSubmit={handleSalvar}>
               <div className={styles.field}>
-                <label className={styles.label}>Data e horário</label>
+                <label className={styles.label}>
+                  <CalendarDays size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                  Selecione o dia
+                </label>
                 <input
                   className={styles.input}
-                  type="datetime-local"
-                  value={form.dataHora}
-                  onChange={e => setForm({ ...form, dataHora: e.target.value })}
+                  type="date"
+                  value={dataSelecionada}
+                  onChange={e => {
+                    setDataSelecionada(e.target.value)
+                    setHorarioSelecionado('') // Limpa horário ao trocar data
+                  }}
+                  min={new Date().toISOString().split('T')[0]}
                   required
                 />
               </div>
 
+              {dataSelecionada && (
+                <div className={styles.field}>
+                  <label className={styles.label}>
+                    <Clock size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                    Selecione o horário
+                  </label>
+                  
+                  {carregandoHorarios ? (
+                    <p className={styles.avisoSelecione}>Carregando horários...</p>
+                  ) : horarios.length === 0 ? (
+                    <p className={styles.avisoSelecione}>Nenhum horário disponível</p>
+                  ) : (
+                    <>
+                      <div className={styles.horariosGrid}>
+                        {horarios.map(h => (
+                          <button
+                            key={h.hora}
+                            type="button"
+                            disabled={!h.disponivel}
+                            onClick={() => setHorarioSelecionado(h.hora)}
+                            className={`
+                              ${styles.horarioBtn}
+                              ${horarioSelecionado === h.hora ? styles.horarioBtnSelecionado : ''}
+                              ${!h.disponivel ? styles.horarioBtnOcupado : ''}
+                            `}
+                            title={h.disponivel ? 'Disponível' : 'Horário ocupado'}
+                          >
+                            {h.hora}
+                          </button>
+                        ))}
+                      </div>
+                      <p className={styles.horarioInfo}>
+                        Horários em cinza já estão ocupados
+                      </p>
+                    </>
+                  )}
+                </div>
+              )}
+            
               <div className={styles.field}>
                 <label className={styles.label}>Serviços</label>
                 <div className={styles.servicoGrid}>
                   {todosServicos.map(s => (
                     <label 
                       key={s.id} 
-                      className={`${styles.servicoCheckbox} ${form.servicoIds.includes(s.id) ? styles.servicoCheckboxAtivo : ''}`}
+                      className={`${styles.servicoCheckbox} ${servicosSelecionados.includes(s.id) ? styles.servicoCheckboxAtivo : ''}`}
                     >
                       <input
                         type="checkbox"
-                        checked={form.servicoIds.includes(s.id)}
+                        checked={servicosSelecionados.includes(s.id)}
                         onChange={() => toggleServico(s.id)}
                       />
                       <span className={styles.servicoLabel}>
@@ -226,8 +315,8 @@ export default function MeusAgendamentos() {
                 <label className={styles.label}>Observação (opcional)</label>
                 <input
                   className={styles.input}
-                  value={form.observacao}
-                  onChange={e => setForm({ ...form, observacao: e.target.value })}
+                  value={observacao}
+                  onChange={e => setObservacao(e.target.value)}
                   placeholder="Ex: cabelo longo, alergia..."
                 />
               </div>
