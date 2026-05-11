@@ -33,7 +33,7 @@ public class AuthService {
             .email(req.getEmail())
             .senhaHash(passwordEncoder.encode(req.getSenha()))
             .telefone(req.getTelefone())
-            .role(req.getRole())
+            .role(UsuarioRole.CLIENTE)
             .build();
 
         usuario = usuarioRepository.save(usuario);
