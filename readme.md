@@ -50,6 +50,8 @@
 
 - Não inclui css aqui no readme para no poluir
 - Essa estrutura é só para enteder a lógica do projeto
+
+
       src/
       ├── api/
       │   ├── axios.js          
