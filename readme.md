@@ -48,7 +48,7 @@
 
 ### Estrutura do frontend
 
-- Não inclui css aqui no readme para no poluir
+- Não inclui css aqui no readme para não poluir
 - Essa estrutura é só para enteder a lógica do projeto
 
 
@@ -306,11 +306,7 @@ cd cabeleleila-leila
 
 #### 2.1 Sobe o banco com Docker
 
-```bash
-docker-compose up -d
-```
-
-Ou manualmente:
+manualmente:
 
 ```bash
 docker run -d \
@@ -321,6 +317,8 @@ docker run -d \
   -p 5432:5432 \
   postgres:15
 ```
+
+ou via docker compose mas não crei um arquivo de configuração para rodar assim.
 
 #### 2.2 Configura application.properties
 
