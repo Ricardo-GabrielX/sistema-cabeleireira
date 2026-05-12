@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Layout from '@/components/Layout/Layout'
 import StatusBadge from '@/components/StatusBadge/StatusBadge'
 import Button from '@/components/Button/Button'
+import Modal from '@/components/Modal/Modal'
 import { listarTodos, alterarStatus, atualizarAgendamentoCabeleireira, horariosDisponiveis } from '@/api/agendamentos'
 import { listarServicos } from '@/api/servicos'
 import { format, parseISO } from 'date-fns'
@@ -219,138 +220,199 @@ export default function Agendamentos() {
         </div>
       ))}
 
-      {modalAberto && (
-        <div className={styles.overlay} onClick={() => setModalAberto(false)}>
-          <div className={styles.modal} onClick={e => e.stopPropagation()}>
-            <p className={styles.modalTitle}>Editar agendamento</p>
-
-            <div className={styles.aviso}>
-              <AlertCircle size={16} />
-              <span>
-                Como cabeleireira, você pode alterar qualquer informação deste agendamento.
-              </span>
-            </div>
-
-            <form className={styles.form} onSubmit={handleSalvar}>
-              {/* Data */}
-              <div className={styles.field}>
-                <label className={styles.label}>
-                  <CalendarDays size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                  Selecione o dia
-                </label>
-                <input
-                  className={styles.input}
-                  type="date"
-                  value={dataSelecionada}
-                  onChange={e => {
-                    setDataSelecionada(e.target.value)
-                    setHorarioSelecionado('')
-                  }}
-                  required
-                />
-              </div>
-
-              {dataSelecionada && (
-                <div className={styles.field}>
-                  <label className={styles.label}>
-                    <Clock size={14} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                    Selecione o horário
-                  </label>
-
-                  {carregandoHorarios ? (
-                    <p className={styles.avisoSelecione}>Carregando horários...</p>
-                  ) : horarios.length === 0 ? (
-                    <p className={styles.avisoSelecione}>Nenhum horário disponível</p>
-                  ) : (
-                    <>
-                      <div className={styles.horariosGrid}>
-                        {horarios.map(h => (
-                          <button
-                            key={h.hora}
-                            type="button"
-                            disabled={!h.disponivel}
-                            onClick={() => setHorarioSelecionado(h.hora)}
-                            className={`
-                              ${styles.horarioBtn}
-                              ${horarioSelecionado === h.hora ? styles.horarioBtnSelecionado : ''}
-                              ${!h.disponivel ? styles.horarioBtnOcupado : ''}
-                            `}
-                            title={h.disponivel ? 'Disponível' : 'Horário ocupado'}
-                          >
-                            {h.hora}
-                          </button>
-                        ))}
-                      </div>
-                      <p className={styles.horarioInfo}>
-                        Horários em cinza já estão ocupados
-                      </p>
-                    </>
-                  )}
-                </div>
-              )}
-
-              <div className={styles.field}>
-                <label className={styles.label}>Serviços</label>
-                <div className={styles.servicoGrid}>
-                  {todosServicos.map(s => (
-                    <label
-                      key={s.id}
-                      className={`${styles.servicoCheckbox} ${servicosSelecionados.includes(s.id) ? styles.servicoCheckboxAtivo : ''}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={servicosSelecionados.includes(s.id)}
-                        onChange={() => toggleServico(s.id)}
-                      />
-                      <span className={styles.servicoLabel}>
-                        {s.nome}
-                        <br />
-                        <small style={{ color: 'var(--gray-400)', fontSize: '11px' }}>
-                          R$ {Number(s.preco).toFixed(2)}
-                        </small>
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className={styles.field}>
-                <label className={styles.label}>Status do agendamento</label>
-                <select
-                  className={styles.input}
-                  value={statusSelecionado}
-                  onChange={e => setStatusSelecionado(e.target.value)}
-                >
-                  <option value="PENDENTE">Pendente</option>
-                  <option value="CONFIRMADO">Confirmado</option>
-                  <option value="CANCELADO">Cancelado</option>
-                </select>
-              </div>
-
-              <div className={styles.field}>
-                <label className={styles.label}>Observação (opcional)</label>
-                <input
-                  className={styles.input}
-                  value={observacao}
-                  onChange={e => setObservacao(e.target.value)}
-                  placeholder="Ex: cabelo longo, alergia..."
-                />
-              </div>
-
-              {erro && <div className={styles.erro}>{erro}</div>}
-
-              <div className={styles.modalAcoes}>
-                <Button type="button" variant="outline" onClick={() => setModalAberto(false)}>
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={salvando}>
-                  {salvando ? 'Salvando...' : 'Salvar alterações'}
-                </Button>
-              </div>
-            </form>
-          </div>
+      <Modal
+        aberto={modalAberto}
+        onClose={() => setModalAberto(false)}
+        titulo="Editar agendamento"
+      >
+        <div className={styles.aviso}>
+          <AlertCircle size={16} />
+          <span>
+            Como cabeleireira, você pode alterar qualquer informação deste agendamento.
+          </span>
         </div>
-      )}
+
+        <form className={styles.form} onSubmit={handleSalvar}>
+          <div className={styles.field}>
+            <label className={styles.label}>
+              <CalendarDays
+                size={14}
+                style={{
+                  marginRight: 4,
+                  verticalAlign: 'middle'
+                }}
+              />
+              Selecione o dia
+            </label>
+
+            <input
+              className={styles.input}
+              type="date"
+              value={dataSelecionada}
+              onChange={e => {
+                setDataSelecionada(e.target.value)
+                setHorarioSelecionado('')
+              }}
+              required
+            />
+          </div>
+
+          {dataSelecionada && (
+            <div className={styles.field}>
+              <label className={styles.label}>
+                <Clock
+                  size={14}
+                  style={{
+                    marginRight: 4,
+                    verticalAlign: 'middle'
+                  }}
+                />
+                Selecione o horário
+              </label>
+
+              {carregandoHorarios ? (
+                <p className={styles.avisoSelecione}>
+                  Carregando horários...
+                </p>
+              ) : horarios.length === 0 ? (
+                <p className={styles.avisoSelecione}>
+                  Nenhum horário disponível
+                </p>
+              ) : (
+                <>
+                  <div className={styles.horariosGrid}>
+                    {horarios.map(h => (
+                      <button
+                        key={h.hora}
+                        type="button"
+                        disabled={!h.disponivel}
+                        onClick={() => setHorarioSelecionado(h.hora)}
+                        className={`
+                          ${styles.horarioBtn}
+                          ${horarioSelecionado === h.hora
+                            ? styles.horarioBtnSelecionado
+                            : ''
+                          }
+                          ${!h.disponivel
+                            ? styles.horarioBtnOcupado
+                            : ''
+                          }
+                        `}
+                      >
+                        {h.hora}
+                      </button>
+                    ))}
+                  </div>
+
+                  <p className={styles.horarioInfo}>
+                    Horários em cinza já estão ocupados
+                  </p>
+                </>
+              )}
+            </div>
+          )}
+
+          <div className={styles.field}>
+            <label className={styles.label}>
+              Serviços
+            </label>
+
+            <div className={styles.servicoGrid}>
+              {todosServicos.map(s => (
+                <label
+                  key={s.id}
+                  className={`
+                    ${styles.servicoCheckbox}
+                    ${servicosSelecionados.includes(s.id)
+                      ? styles.servicoCheckboxAtivo
+                      : ''
+                    }
+                  `}
+                >
+                  <input
+                    type="checkbox"
+                    checked={servicosSelecionados.includes(s.id)}
+                    onChange={() => toggleServico(s.id)}
+                  />
+
+                  <span className={styles.servicoLabel}>
+                    {s.nome}
+
+                    <br />
+
+                    <small>
+                      R$ {Number(s.preco).toFixed(2)}
+                    </small>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>
+              Status do agendamento
+            </label>
+
+            <select
+              className={styles.input}
+              value={statusSelecionado}
+              onChange={e => setStatusSelecionado(e.target.value)}
+            >
+              <option value="PENDENTE">
+                Pendente
+              </option>
+
+              <option value="CONFIRMADO">
+                Confirmado
+              </option>
+
+              <option value="CANCELADO">
+                Cancelado
+              </option>
+            </select>
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>
+              Observação
+            </label>
+
+            <input
+              className={styles.input}
+              value={observacao}
+              onChange={e => setObservacao(e.target.value)}
+              placeholder="Ex: cabelo longo..."
+            />
+          </div>
+
+          {erro && (
+            <div className={styles.erro}>
+              {erro}
+            </div>
+          )}
+
+          <div className={styles.modalAcoes}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setModalAberto(false)}
+            >
+              Cancelar
+            </Button>
+
+            <Button
+              type="submit"
+              disabled={salvando}
+            >
+              {salvando
+                ? 'Salvando...'
+                : 'Salvar alterações'
+              }
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </Layout>
   )
 }
