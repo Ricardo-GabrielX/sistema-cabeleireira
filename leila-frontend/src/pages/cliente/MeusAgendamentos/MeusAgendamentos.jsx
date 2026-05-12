@@ -158,7 +158,7 @@ export default function MeusAgendamentos() {
         <div className={styles.header}>
           <h1 className={styles.title}>Meus agendamentos</h1>
           <Button onClick={carregarAgendamentos} disabled={loading}>
-            🔄 Recarregar
+            Recarregar
           </Button>
         </div>
 
