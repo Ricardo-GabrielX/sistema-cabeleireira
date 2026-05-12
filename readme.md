@@ -759,13 +759,13 @@ Ao editar um agendamento:
 # Telas
   > User
 
-![alt text](image.png)
+![alt text](assets/image.png)
 
 Tela de Login(email e senha) 
 
 ---
 
-![alt text](image-1.png)
+![alt text](assets/image-1.png)
 
 
 Cadastro, insere email, senha e telefone.
@@ -775,21 +775,21 @@ Cadastro, insere email, senha e telefone.
 
     Realizando agendamento
 
-![alt text](image-2.png)
+![alt text](assets/image-2.png)
 
 Escolhendo serviço
 
-![alt text](image-3.png)
+![alt text](assets/image-3.png)
 
 Escolhendo dia e hora do agendamento
 
-![alt text](image-5.png)
+![alt text](assets/image-5.png)
 
 Aqui temos um input com observações caso o cliente deseje dar mais informações sobre o que ele quer.
 
 E  o botão Confirmar agendamento, para confirmar um agendamento.
 
-![alt text](image-6.png)
+![alt text](assets/image-6.png)
 
 Leva para essa tela de meus agendamentos após confirmar um agendamento. 
 
@@ -804,14 +804,14 @@ Se houveer outro agendamento na mesma semana do mesmo cliente, na hora de realiz
     Resposta esperada: O sistema sugere ao cliente, agendar os seus agendamentos para o dia 13/05/2026
 
 
-![alt text](image-8.png)
+![alt text](assets/image-8.png)
 
 (Indo confirmar agendamento para o dia 15/05/2026)
 
 
 > Sistema fornce sugestão: 
 
-![alt text](image-9.png)
+![alt text](assets/image-9.png)
 
 
 - Há duas opções, escolher outra data: você pode por no mesmo dia do primeiro agendamento, você só deve olhar quais horários estão disponíveis.
@@ -820,38 +820,38 @@ Se houveer outro agendamento na mesma semana do mesmo cliente, na hora de realiz
 
 - Nesse caso, eu optei por continuar mesmo assim, para demostração
 
-![alt text](image-10.png)
+![alt text](assets/image-10.png)
 
 --- 
 
 Possibilidade de editar agendamentos, quando data marcada for maior do que 2 dias do agendado.
 
-![alt text](image-11.png)
+![alt text](assets/image-11.png)
 
 > Entrando como cabeleireira
 
-![alt text](image-12.png)
+![alt text](assets/image-12.png)
 
   - visão inicial do dashboard
   - Agendamentos por dia 
   - Nomes dos clientes agendados na semana
   - Sugestões de consolodição(agendandos na memsma semana)
 
-![alt text](image-13.png)
-![alt text](image-14.png)
-![alt text](image-16.png)
+![alt text](assets/image-13.png)
+![alt text](assets/image-14.png)
+![alt text](assets/image-16.png)
 
 --- 
 
 Buscando os agendamentos por período de tempo
 
-![alt text](image-18.png)
+![alt text](assets/image-18.png)
 
 ---
 
 Todos os serviços com as opções de editar, adicionar, visualizar, e excluir.
 
-![alt text](image-19.png)
+![alt text](assets/image-19.png)
 
 
 ## 👨‍💻 Autor
