@@ -58,3 +58,192 @@
 .acoes { display: flex; gap: 8px; }
 
 .vazio { text-align: center; padding: 40px; color: var(--gray-400); }
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnEditar {
+  background: transparent;
+  border: none;
+  color: var(--pink);
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s;
+}
+
+.btnEditar:hover { opacity: 0.7; }
+
+/* Modal */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.modal {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: var(--shadow-md);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.form { display: flex; flex-direction: column; gap: 14px; }
+
+.horariosGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  background: var(--gray-50);
+}
+
+.horarioBtn {
+  padding: 10px 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.horarioBtn:hover:not(:disabled) {
+  border-color: var(--pink);
+  transform: translateY(-1px);
+}
+
+.horarioBtnSelecionado {
+  border-color: var(--pink);
+  background: var(--pink-light);
+  color: var(--pink-dark);
+}
+
+.horarioBtnOcupado {
+  background: var(--gray-100);
+  color: var(--gray-400);
+  border-color: var(--gray-200);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.horarioBtnOcupado:hover {
+  transform: none;
+  border-color: var(--gray-200);
+}
+
+.horarioInfo {
+  font-size: 11px;
+  color: var(--gray-500);
+  text-align: center;
+  margin-top: 4px;
+}
+
+.avisoSelecione {
+  text-align: center;
+  padding: 12px;
+  color: var(--gray-400);
+  font-size: 12px;
+}
+
+.servicoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+}
+
+.servicoCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.servicoCheckbox:hover { border-color: var(--pink); }
+
+.servicoCheckboxAtivo {
+  border-color: var(--pink);
+  background: var(--pink-light);
+}
+
+.servicoCheckbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--pink);
+}
+
+.servicoLabel {
+  font-size: 13px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.modalAcoes {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.aviso {
+  background: var(--pink-light);
+  border: 1px solid var(--pink);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #831843;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+.erro {
+  font-size: 13px;
+  color: var(--red);
+  background: var(--red-light);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #fecaca;
+}
+
+@media (max-width: 640px) {
+  .horariosGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
